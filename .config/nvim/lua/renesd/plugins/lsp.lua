@@ -110,6 +110,16 @@ return {
                     })
                 end
             })
+
+            require('lspconfig').dartls.setup({
+                cmd = { 'dart', 'language-server', '--protocol=lsp' },
+                on_attach = on_attach,
+                settings = {
+                    dart = {
+                        lineLength = 120,
+                    },
+                },
+            })
         end,
     },
 }

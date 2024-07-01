@@ -20,7 +20,7 @@ vim.opt.signcolumn = 'yes'
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
-vim.opt.clipboard = 'unnamedplus'
+vim.opt.clipboard = ''
 
 vim.opt.completeopt = 'menuone,noselect'
 

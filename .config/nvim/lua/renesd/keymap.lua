@@ -1,6 +1,15 @@
 vim.g.mapleader = ' '
 
-vim.keymap.set('n', '<leader>f', vim.lsp.buf.format)
+vim.keymap.set('n', '<leader>f', function()
+    vim.lsp.buf.format()
+    vim.lsp.buf.code_action({
+        context = {
+            only = { 'source.organizeImports' },
+            diagnostics = {},
+        },
+        apply = true,
+    })
+end)
 
 vim.keymap.set('n', '<leader>do', vim.diagnostic.open_float)
 vim.keymap.set('n', '<leader>d[', vim.diagnostic.goto_prev)

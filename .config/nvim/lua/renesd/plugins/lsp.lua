@@ -79,6 +79,7 @@ return {
                 },
                 marksman = {},
                 pyright = {},
+                ruff = {},
                 rust_analyzer = {
                     check = {
                         command = 'clippy',

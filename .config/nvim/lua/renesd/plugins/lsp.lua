@@ -32,94 +32,90 @@ local on_attach = function(_, bufnr)
     end, { desc = 'Format current buffer with LSP' })
 end
 
-return {
-    {
-        'neovim/nvim-lspconfig',
-        dependencies = {
-            {
-                'williamboman/mason.nvim',
-                config = function()
-                    require('mason').setup({
-                        ui = {
-                            icons = {
-                                package_installed = '✓',
-                                package_pending = '➜',
-                                package_uninstalled = '✗'
-                            }
-                        }
-                    })
-                end,
-            },
-            {
-                'williamboman/mason-lspconfig.nvim',
+vim.pack.add({
+    'https://github.com/williamboman/mason.nvim',
+    'https://github.com/williamboman/mason-lspconfig.nvim',
+    'https://github.com/neovim/nvim-lspconfig',
+})
+
+
+local servers = {
+    clangd = {},
+    cssls = {},
+    dartls = {
+        cmd = { 'dart', 'language-server', '--protocol=lsp' },
+        on_attach = on_attach,
+        settings = {
+            dart = {
+                lineLength = 120,
             },
         },
-        config = function()
-            local servers = {
-                clangd = {},
-                cssls = {},
-                gopls = {},
-                html = {},
-                jsonls = {},
-                jdtls = {},
-                kotlin_language_server = {},
-                lemminx = {},
-                lua_ls = {
-                    Lua = {
-                        workspace = {
-                            checkThirdParty = false,
-                            library = {
-                                vim.env.VIMRUNTIME,
-                            },
-                        },
-                        telemetry = {
-                            enable = false,
-                        },
-                    },
-                },
-                marksman = {},
-                pyright = {},
-                ruff = {},
-                rust_analyzer = {
-                    check = {
-                        command = 'clippy',
-                    },
-                    diagnostics = {
-                        enable = true,
-                    }
-                },
-                sqlls = {},
-                yamlls = {},
-            }
-            local capabilities = vim.lsp.protocol.make_client_capabilities()
-            capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-
-            local mason_lspconfig = require('mason-lspconfig')
-
-            mason_lspconfig.setup({
-                ensure_installed = vim.tbl_keys(servers),
-            })
-
-            mason_lspconfig.setup_handlers({
-                function(server_name)
-                    require('lspconfig')[server_name].setup({
-                        capabilities = capabilities,
-                        on_attach = on_attach,
-                        settings = servers[server_name],
-                        filetypes = (servers[server_name] or {}).filetypes,
-                    })
-                end
-            })
-
-            require('lspconfig').dartls.setup({
-                cmd = { 'dart', 'language-server', '--protocol=lsp' },
-                on_attach = on_attach,
-                settings = {
-                    dart = {
-                        lineLength = 120,
-                    },
-                },
-            })
-        end,
     },
+    gopls = {},
+    html = {},
+    jsonls = {},
+    jdtls = {},
+    kotlin_language_server = {},
+    lemminx = {},
+    lua_ls = {
+        Lua = {
+            workspace = {
+                checkThirdParty = false,
+                library = {
+                    vim.env.VIMRUNTIME,
+                },
+            },
+            telemetry = {
+                enable = false,
+            },
+        },
+    },
+    marksman = {},
+    pyright = {},
+    ruff = {},
+    rust_analyzer = {
+        check = {
+            command = 'clippy',
+        },
+        diagnostics = {
+            enable = true,
+        }
+    },
+    sqlls = {},
+    yamlls = {},
 }
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
+for server_name, _ in pairs(servers) do
+    vim.lsp.config[server_name] = {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = servers[server_name],
+        filetypes = (servers[server_name] or {}).filetypes,
+    }
+end
+
+require('mason').setup({
+    ui = {
+        icons = {
+            package_installed = '✓',
+            package_pending = '➜',
+            package_uninstalled = '✗'
+        }
+    }
+})
+
+local non_mason_servers = {
+    dartls = true,
+}
+
+local mason_servers = vim.tbl_filter(
+    function(server) return not non_mason_servers[server] end,
+    vim.tbl_keys(servers)
+)
+
+require("mason-lspconfig").setup({
+    ensure_installed = mason_servers,
+})

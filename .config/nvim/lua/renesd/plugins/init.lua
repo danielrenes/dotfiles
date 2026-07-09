@@ -1,0 +1,8 @@
+require('renesd.plugins.autocomplete')
+require('renesd.plugins.colorscheme')
+require('renesd.plugins.copilot')
+require('renesd.plugins.git')
+require('renesd.plugins.lsp')
+require('renesd.plugins.lualine')
+require('renesd.plugins.telescope')
+require('renesd.plugins.treesitter')
